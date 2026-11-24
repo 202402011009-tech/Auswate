@@ -1,0 +1,122 @@
+/* =========================================================
+   //* FILE: css/02-base-layout.css
+   //* FUNGSI: Mengatur tampilan dasar halaman (body, scrollbar,
+   //*         transisi umum, & dukungan adaptasi Dark Mode).
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--au-bg);
+  color: var(--au-text);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* //* Kustomisasi scrollbar agar selaras dengan warna brand */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--au-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9ec5ae;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--au-green);
+}
+
+/* //* Animasi masuk halus untuk perpindahan tab & layar */
+.fade-in {
+  animation: auFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes auFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* //* Dukungan kelas kartu otomatis menyesuaikan Dark Mode */
+.theme-card {
+  background-color: var(--au-surface);
+  border-color: var(--au-border);
+  color: var(--au-text);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.theme-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.theme-subtext {
+  color: var(--au-text-muted);
+}
+
+body.dark-mode .bg-auBg {
+  background-color: var(--au-bg) !important;
+}
+
+body.dark-mode .bg-white {
+  background-color: var(--au-surface) !important;
+  color: var(--au-text) !important;
+}
+
+body.dark-mode .border-auBorder,
+body.dark-mode .border-gray-200,
+body.dark-mode .border-gray-100 {
+  border-color: var(--au-border) !important;
+}
+
+body.dark-mode .text-auDark {
+  color: #ecfdf5 !important;
+}
+
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-500 {
+  color: var(--au-text-muted) !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: var(--au-surface-alt) !important;
+  color: var(--au-text) !important;
+  border-color: var(--au-border) !important;
+}
+
+/* //* Wadah khusus agar logo AuWaste (biru tua + daun hijau) selalu kontras di latar gelap & Dark Mode */
+.au-logo-pill {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.28);
+}
+
+.au-logo-header {
+  transition: background-color 0.3s ease, padding 0.3s ease;
+}
+
+body.dark-mode .au-logo-header {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.9rem;
+}

@@ -1,0 +1,117 @@
+/* =========================================================
+   //* FILE: css/04-loader.css
+   //* FUNGSI: Mengatur desain & animasi Overlay Loading Fullscreen
+   //*         yang langsung muncul saat tombol "Masuk ke Platform"
+   //*         atau perpindahan layar penting diklik.
+   ========================================================= */
+
+#au-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at center, #114c2f 0%, #072315 70%, #04150c 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+/* //* Kelas aktif untuk memunculkan layar loading */
+#au-loader-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* //* Cincin radar berputar mengelilingi logo AuWaste */
+.loader-orbital-box {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+}
+
+.loader-ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(184, 233, 75, 0.15);
+  border-top-color: var(--au-lime);
+  border-right-color: #34d399;
+  animation: spinOrbit 1.15s linear infinite;
+}
+
+.loader-ring-inner {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  border: 2.5px dashed rgba(255, 255, 255, 0.25);
+  border-bottom-color: var(--au-lime);
+  animation: spinOrbitReverse 1.9s linear infinite;
+}
+
+.loader-leaf-core {
+  width: 68px;
+  height: 68px;
+  background: #ffffff;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 0 32px rgba(184, 233, 75, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: coreBreathe 1.4s ease-in-out infinite;
+}
+
+@keyframes spinOrbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinOrbitReverse {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes coreBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* //* Track progress bar loading dari 0% hingga 100% */
+.loader-progress-track {
+  width: min(340px, 82vw);
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(184, 233, 75, 0.25);
+}
+
+.loader-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #34d399, #b8e94b);
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(184, 233, 75, 0.7);
+  transition: width 0.12s linear;
+}
+
+/* //* Indikator titik step proses di bawah progress bar */
+.loader-step-pill {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.55);
+  transition: all 0.25s ease;
+}
+
+.loader-step-pill.done {
+  background: rgba(184, 233, 75, 0.2);
+  color: #b8e94b;
+  border: 1px solid rgba(184, 233, 75, 0.45);
+}

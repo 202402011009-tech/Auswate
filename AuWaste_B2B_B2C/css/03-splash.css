@@ -1,0 +1,116 @@
+/* =========================================================
+   //* FILE: css/03-splash.css
+   //* FUNGSI: Mengatur gaya visual Splash Screen awal (seperti
+   //*         desain utama AuWaste), efek cahaya latar, animasi
+   //*         mengambang pada 4 kartu badge, dan progress bar.
+   ========================================================= */
+
+.splash-wrapper {
+  background: radial-gradient(circle at 20% 20%, #155c39 0%, #0d4027 45%, #072617 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* //* Cahaya ambien lembut di sudut layar Splash */
+.splash-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(110px);
+  pointer-events: none;
+  opacity: 0.28;
+}
+
+.splash-orb-1 {
+  width: 380px;
+  height: 380px;
+  background: var(--au-lime);
+  top: -90px;
+  left: -80px;
+  animation: orbPulse 7s ease-in-out infinite alternate;
+}
+
+.splash-orb-2 {
+  width: 420px;
+  height: 420px;
+  background: #10b981;
+  bottom: -120px;
+  right: -100px;
+  animation: orbPulse 9s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orbPulse {
+  from { transform: scale(1) translate(0, 0); opacity: 0.2; }
+  to { transform: scale(1.18) translate(25px, -20px); opacity: 0.35; }
+}
+
+/* //* Grid tekstur halus di belakang layar Splash */
+.splash-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+/* //* Animasi mengambang (floating) untuk 4 kartu badge di Splash */
+.floating-badge {
+  animation: floatCard 5s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 10;
+}
+
+.floating-badge:hover {
+  transform: scale(1.06) rotate(0deg) !important;
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.35);
+}
+
+.float-delay-1 { animation-delay: 0s; }
+.float-delay-2 { animation-delay: 1.2s; }
+.float-delay-3 { animation-delay: 2.1s; }
+.float-delay-4 { animation-delay: 0.7s; }
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0px) rotate(var(--badge-rot, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--badge-rot, 0deg)); }
+}
+
+/* //* Efek kilau bergerak pada garis progress bar di tengah Splash */
+.splash-bar-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.splash-bar-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: translateX(-100%);
+  animation: shimmerBar 2.2s infinite;
+}
+
+@keyframes shimmerBar {
+  100% { transform: translateX(100%); }
+}
+
+/* //* Efek denyut cahaya tombol Masuk ke Platform */
+.btn-enter-platform {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 0 0 0 rgba(184, 233, 75, 0.6);
+  animation: btnGlowPulse 2.5s infinite;
+}
+
+.btn-enter-platform:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(184, 233, 75, 0.45);
+}
+
+@keyframes btnGlowPulse {
+  0% { box-shadow: 0 0 0 0 rgba(184, 233, 75, 0.45); }
+  70% { box-shadow: 0 0 0 14px rgba(184, 233, 75, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(184, 233, 75, 0); }
+}

@@ -1,0 +1,71 @@
+/* =========================================================
+   //* FILE: css/05-landing.css
+   //* FUNGSI: Mengatur tampilan Landing Page termasuk Live Market
+   //*         Price Ticker berjalan, kartu katalog bergambar,
+   //*         dan panel Kalkulator Dampak Karbon / ESG.
+   ========================================================= */
+
+/* //* Bar ticker harga pasar limbah industri yang berjalan otomatis */
+.market-ticker-wrap {
+  overflow: hidden;
+  background: #092c1b;
+  border-bottom: 1px solid rgba(184, 233, 75, 0.2);
+  white-space: nowrap;
+}
+
+.market-ticker-track {
+  display: inline-flex;
+  gap: 2.5rem;
+  padding: 0.55rem 0;
+  animation: tickerScroll 28s linear infinite;
+}
+
+.market-ticker-wrap:hover .market-ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* //* Efek zoom halus pada foto produk limbah saat kursor diarahkan */
+.product-card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: #0c3b24;
+}
+
+.product-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.product-card:hover .product-card-img-wrap img {
+  transform: scale(1.07);
+}
+
+/* //* Slider kustom untuk Kalkulator Dampak ESG & Karbon */
+.esg-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #166f44, #b8e94b);
+  outline: none;
+}
+
+.esg-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #166f44;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}

@@ -1,0 +1,32 @@
+/* =========================================================
+   //* FILE: css/06-auth.css
+   //* FUNGSI: Mengatur tampilan halaman Login & Register Terbuka
+   //*         untuk pengguna B2B & B2C (Individu, UMKM, Bank
+   //*         Sampah/Pengepul, Pabrik, dan Recycler).
+   ========================================================= */
+
+.auth-side-panel {
+  background: linear-gradient(155deg, #072617 0%, #0c3b24 55%, #166f44 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-side-panel::after {
+  content: '';
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: var(--au-lime);
+  opacity: 0.1;
+  filter: blur(80px);
+  bottom: -60px;
+  right: -60px;
+  pointer-events: none;
+}
+
+/* //* Kotak info akses terbuka & verifikasi akun sesuai kategori pengguna */
+.open-access-box {
+  background: linear-gradient(135deg, rgba(22, 111, 68, 0.08), rgba(184, 233, 75, 0.16));
+  border: 1.5px solid rgba(22, 111, 68, 0.35);
+}

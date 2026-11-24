@@ -1,0 +1,40 @@
+/* =========================================================
+   //* FILE: css/01-variables.css
+   //* FUNGSI: Menyimpan seluruh variabel warna brand AuWaste,
+   //*         pengaturan tema Light & Dark Mode, shadow, dan font.
+   //*         Ubah warna di sini jika ingin mengganti tema global.
+   ========================================================= */
+
+:root {
+  /* //* Palet warna utama brand AuWaste (Emerald & Lime) */
+  --au-dark: #0c3b24;
+  --au-deep: #072617;
+  --au-green: #166f44;
+  --au-green-light: #1f8a56;
+  --au-lime: #b8e94b;
+  --au-lime-glow: rgba(184, 233, 75, 0.45);
+
+  /* //* Warna latar & kartu mode terang (Default) */
+  --au-bg: #f4f9f5;
+  --au-surface: #ffffff;
+  --au-surface-alt: #edf6ef;
+  --au-border: #dce9df;
+  --au-text: #0c3b24;
+  --au-text-muted: #5a7265;
+
+  /* //* Radius & Bayangan standar komponen */
+  --radius-card: 1.25rem;
+  --shadow-soft: 0 10px 30px -10px rgba(12, 59, 36, 0.12);
+  --shadow-hover: 0 18px 36px -12px rgba(12, 59, 36, 0.22);
+}
+
+/* //* Variabel otomatis saat Dark Mode aktif pada elemen <body> */
+body.dark-mode {
+  --au-bg: #081510;
+  --au-surface: #0f231b;
+  --au-surface-alt: #153126;
+  --au-border: #1e4234;
+  --au-text: #ecfdf5;
+  --au-text-muted: #94b8a6;
+  --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+}

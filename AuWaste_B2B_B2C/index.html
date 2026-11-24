@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuWaste — Platform Terbuka Pertukaran Limbah B2B &amp; B2C</title>
+  <!-- //* FUNGSI: Menampilkan ikon resmi AuWaste pada tab browser -->
+  <link rel="icon" type="image/png" href="assets/icon-auwaste.png" />
+
+  <!-- //* FUNGSI: Memuat framework Tailwind CSS & Google Font Inter -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- //* FUNGSI: Konfigurasi warna kustom brand AuWaste untuk kelas Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            auDark: '#0c3b24',
+            auGreen: '#166f44',
+            auLime: '#b8e94b',
+            auBg: '#f4f9f5',
+            auCard: '#ffffff',
+            auBorder: '#dce9df'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- //* FUNGSI: Memuat 8 file CSS modular agar desain tiap layar terpisah & mudah diperbaiki -->
+  <link rel="stylesheet" href="css/01-variables.css" />
+  <link rel="stylesheet" href="css/02-base-layout.css" />
+  <link rel="stylesheet" href="css/03-splash.css" />
+  <link rel="stylesheet" href="css/04-loader.css" />
+  <link rel="stylesheet" href="css/05-landing.css" />
+  <link rel="stylesheet" href="css/06-auth.css" />
+  <link rel="stylesheet" href="css/07-dashboard.css" />
+  <link rel="stylesheet" href="css/08-components.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- =========================================================
+       //* KOMPONEN 0: OVERLAY ANIMASI LOADING FULLSCREEN
+       //* FUNGSI: Langsung muncul dengan cincin radar, progress 0-100%,
+       //*         dan status AI saat tombol "Masuk ke Platform →" diklik.
+       ========================================================= -->
+  <div id="au-loader-overlay" role="status" aria-live="polite">
+    <div class="loader-orbital-box">
+      <div class="loader-ring-outer"></div>
+      <div class="loader-ring-inner"></div>
+      <div class="loader-leaf-core">
+        <img src="assets/icon-auwaste.png" alt="Logo AuWaste" class="w-full h-full object-contain" />
+      </div>
+    </div>
+
+    <h2 id="loader-title" class="text-white text-2xl md:text-3xl font-extrabold tracking-tight mb-1">
+      Memasuki Platform AuWaste
+    </h2>
+    <p id="loader-status-text" class="text-emerald-200/90 text-xs md:text-sm mb-5 text-center px-4">
+      Menginisialisasi Engine AI Klasifikasi Material...
+    </p>
+
+    <div class="loader-progress-track mb-2">
+      <div id="loader-progress-fill" class="loader-progress-fill"></div>
+    </div>
+
+    <div class="flex items-center justify-between w-[min(340px,82vw)] text-xs font-bold mb-6">
+      <span class="text-emerald-300/80">Reduce · Reuse · Recycle</span>
+      <span id="loader-percent" class="text-auLime font-mono">0%</span>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2 px-4">
+      <span class="loader-step-pill">1. AI Klasifikasi</span>
+      <span class="loader-step-pill">2. Harga Pasar</span>
+      <span class="loader-step-pill">3. Mitra B2B &amp; B2C</span>
+      <span class="loader-step-pill">4. Siap Pakai</span>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* KOMPONEN GLOBAL: WADAH NOTIFIKASI TOAST MELAYANG
+       //* FUNGSI: Menampilkan pesan sukses/info modern di pojok kanan bawah.
+       ========================================================= -->
+  <div id="toast-container"></div>
+
+  <!-- =========================================================
+       //* TOP DEMO CONTROLLER BAR (Navigasi Cepat Semua Layar)
+       //* FUNGSI: Memudahkan presentasi & lompat antar layar secara instan,
+       //*         plus tombol Dark/Light Mode dan Reset Data Demo.
+       ========================================================= -->
+  <div class="bg-[#0b110e] text-white text-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-50 border-b border-white/10">
+    <div class="flex items-center gap-2">
+      <span class="bg-auLime text-auDark font-extrabold px-2.5 py-0.5 rounded">Navigasi Cepat</span>
+      <span class="text-gray-300 hidden sm:inline">Platform Terbuka B2B &amp; B2C:</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-1.5">
+      <button id="top-btn-splash" onclick="switchGlobalScreen('splash')" class="top-nav-btn px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 transition">1. Splash</button>
+      <button id="top-btn-landing" onclick="switchGlobalScreen('landing')" class="top-nav-btn px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 transition">2. Landing Page</button>
+      <button id="top-btn-auth" onclick="switchGlobalScreen('auth')" class="top-nav-btn px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 transition">3. Daftar (B2B &amp; B2C)</button>
+      <button id="top-btn-app" onclick="openAppTab('dashboard')" class="top-nav-btn px-2.5 py-1 rounded bg-auGreen hover:bg-emerald-600 font-semibold transition">4. Dashboard App</button>
+      <button id="btn-theme-toggle" onclick="toggleDarkMode()" class="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 transition ml-1">🌙 Mode Gelap</button>
+      <button onclick="resetDemoData()" class="px-2.5 py-1 rounded bg-red-600/85 hover:bg-red-600 font-semibold transition">Reset Data</button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* LAYAR 1: SPLASH SCREEN (Tampilan Pembuka Utama)
+       //* FUNGSI: Layar awal ikonik AuWaste dengan 4 kartu mengambang
+       //*         B2B & B2C serta tombol "Masuk ke Platform →" yang
+       //*         langsung memicu Animasi Loading Fullscreen.
+       ========================================================= -->
+  <section id="screen-splash" class="splash-wrapper flex-1 flex items-center justify-center p-6 min-h-[calc(100vh-40px)]">
+    <div class="splash-grid-bg"></div>
+    <div class="splash-orb splash-orb-1"></div>
+    <div class="splash-orb splash-orb-2"></div>
+
+    <!-- //* 4 Kartu Mengambang (Floating Badges) mewakili ekosistem B2B & B2C -->
+    <div onclick="enterPlatformFromSplash()" style="--badge-rot: -3deg" class="floating-badge float-delay-1 cursor-pointer hidden md:flex items-center gap-3 bg-white text-auDark px-4 py-3 rounded-2xl shadow-2xl absolute top-[22%] left-[7%] lg:left-[10%]">
+      <div class="w-9 h-9 rounded-xl bg-auLime flex items-center justify-center font-extrabold text-auDark">✓</div>
+      <div>
+        <p class="font-extrabold text-sm text-auDark">Limbah PP Plastic (B2B)</p>
+        <p class="text-xs text-gray-500">1.000 KG · AI Verified</p>
+      </div>
+    </div>
+
+    <div onclick="enterPlatformFromSplash()" style="--badge-rot: 2deg" class="floating-badge float-delay-2 cursor-pointer hidden md:flex items-center gap-3 bg-white text-auDark px-4 py-3 rounded-2xl shadow-2xl absolute top-[32%] right-[7%] lg:right-[10%]">
+      <div class="w-9 h-9 rounded-xl bg-auLime flex items-center justify-center font-extrabold text-sm text-auDark">96</div>
+      <div>
+        <p class="font-extrabold text-sm text-auDark">Smart Matching</p>
+        <p class="text-xs text-gray-500">Recycler · Pengepul · UMKM</p>
+      </div>
+    </div>
+
+    <div onclick="enterPlatformFromSplash()" style="--badge-rot: 2deg" class="floating-badge float-delay-3 cursor-pointer hidden md:flex items-center gap-3 bg-white text-auDark px-4 py-3 rounded-2xl shadow-2xl absolute bottom-[22%] left-[9%] lg:left-[12%]">
+      <div class="w-9 h-9 rounded-xl bg-auLime flex items-center justify-center font-extrabold text-sm text-auDark">🏠</div>
+      <div>
+        <p class="font-extrabold text-sm text-auDark">Botol PET Terpilah (B2C)</p>
+        <p class="text-xs text-gray-500">25 KG · Individu &amp; Bank Sampah</p>
+      </div>
+    </div>
+
+    <div onclick="enterPlatformFromSplash()" style="--badge-rot: -2deg" class="floating-badge float-delay-4 cursor-pointer hidden md:flex items-center gap-3 bg-white text-auDark px-4 py-3 rounded-2xl shadow-2xl absolute bottom-[22%] right-[9%] lg:right-[12%]">
+      <div class="w-9 h-9 rounded-xl bg-auLime flex items-center justify-center font-extrabold text-xs text-auDark">Rp</div>
+      <div>
+        <p class="font-extrabold text-sm text-auDark">Harga Wajar &amp; Transparan</p>
+        <p class="text-xs text-gray-500">Rp 8.100 / kg · Logistik Opsional</p>
+      </div>
+    </div>
+
+    <!-- //* Konten Utama Tengah Splash Screen -->
+    <div class="text-center max-w-xl z-10 fade-in">
+      <div class="inline-flex items-center justify-center au-logo-pill px-7 py-4 rounded-3xl mb-5">
+        <img src="assets/logo-auwaste.png" alt="Logo Resmi AuWaste" class="h-12 sm:h-16 w-auto object-contain" />
+      </div>
+
+      <p class="text-emerald-100 text-lg sm:text-xl mb-2 font-medium">
+        Waste that finds its next purpose.
+      </p>
+      <p class="text-emerald-200/85 text-xs sm:text-sm mb-6">
+        Platform Digital Terbuka untuk Pengguna <strong>B2B (Industri)</strong> &amp; <strong>B2C (Individu, UMKM, Bank Sampah)</strong>
+      </p>
+
+      <div class="w-52 h-1.5 bg-white/20 rounded-full mx-auto overflow-hidden mb-3">
+        <div class="w-2/3 h-full bg-auLime rounded-full splash-bar-shimmer"></div>
+      </div>
+
+      <p class="text-auLime text-sm font-bold tracking-wide mb-8">
+        Reduce · Reuse · Recycle
+      </p>
+
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="enterPlatformFromSplash()" class="btn-enter-platform px-8 py-3.5 rounded-full bg-auLime text-auDark font-extrabold text-sm cursor-pointer">
+          Masuk ke Platform →
+        </button>
+      </div>
+
+      <div class="mt-10 flex flex-wrap justify-center gap-5 text-xs text-emerald-200/80">
+        <span><strong class="text-white">Terbuka untuk Umum</strong> (B2C)</span>
+        <span>•</span>
+        <span><strong class="text-white">Skala Industri</strong> (B2B)</span>
+        <span>•</span>
+        <span><strong class="text-white">AI 97%</strong> Klasifikasi Material</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       //* LAYAR 2: LANDING PAGE TERBUKA B2B & B2C
+       //* FUNGSI: Menampilkan Live Market Ticker, Hero B2B & B2C,
+       //*         Katalog Produk Bergambar (Featured di atas),
+       //*         5 Kelompok Target Pasar, 3 Sumber Pendapatan
+       //*         Transparan, dan Panduan 4 Langkah Pengguna Baru.
+       ========================================================= -->
+  <section id="screen-landing" class="hidden flex-1 bg-auBg fade-in">
+    <div class="market-ticker-wrap">
+      <div class="market-ticker-track"></div>
+    </div>
+
+    <header class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="au-logo-header flex items-center cursor-pointer" onclick="switchGlobalScreen('splash')">
+        <img src="assets/logo-auwaste.png" alt="AuWaste" class="h-9 sm:h-10 w-auto object-contain" />
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-auDark/80">
+        <a href="#katalog-landing" class="hover:text-auGreen transition">Katalog B2B &amp; B2C</a>
+        <a href="#target-pasar" class="hover:text-auGreen transition">Untuk Siapa?</a>
+        <a href="#model-biaya" class="hover:text-auGreen transition">Transparansi Biaya</a>
+        <button onclick="openAppTab('matching')" class="hover:text-auGreen transition">Smart Matching</button>
+        <button onclick="openAppTab('esg')" class="hover:text-auGreen transition">Kalkulator ESG</button>
+      </nav>
+      <div class="flex items-center gap-2">
+        <button onclick="openAppTab('dashboard')" class="hidden sm:inline-block bg-white border border-auBorder text-auDark font-semibold text-sm px-4 py-2.5 rounded-full hover:bg-emerald-50 transition">
+          Buka App
+        </button>
+        <button onclick="switchGlobalScreen('auth')" class="bg-auGreen text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-auDark transition shadow">
+          Daftar Gratis
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-8 space-y-16">
+      <!-- //* Hero Section B2B & B2C -->
+      <div class="grid md:grid-cols-12 gap-10 items-center">
+        <div class="md:col-span-7 space-y-5">
+          <span class="inline-flex items-center gap-2 bg-emerald-100 text-auGreen text-xs font-bold px-3.5 py-1.5 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-auGreen animate-pulse"></span>
+            Platform Terbuka B2B &amp; B2C · Individu, UMKM, Bank Sampah &amp; Industri
+          </span>
+          <h1 class="text-4xl md:text-6xl font-black text-auDark leading-[1.1] tracking-tight">
+            Salurkan &amp; temukan limbah bernilai, <span class="text-auGreen">untuk semua.</span>
+          </h1>
+          <p class="text-gray-600 text-base md:text-lg leading-relaxed max-w-xl">
+            AuWaste mempertemukan masyarakat umum, UMKM, bank sampah, pengepul, pabrik, dan recycler dalam satu platform terbuka. Mulai dari 5 KG botol rumah tangga hingga ribuan kilogram limbah industri — lengkap dengan klasifikasi AI, harga wajar, smart matching, dan logistik opsional.
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button onclick="switchGlobalScreen('auth')" class="bg-auGreen text-white font-bold px-6 py-3.5 rounded-full hover:bg-auDark transition shadow-lg">
+              Mulai Gratis (Individu / Bisnis) →
+            </button>
+            <button onclick="openAppTab('listing')" class="bg-white border border-auBorder text-auDark font-bold px-6 py-3.5 rounded-full hover:bg-emerald-50 transition">
+              Jelajahi Katalog B2B &amp; B2C
+            </button>
+            <button onclick="openAppTab('esg')" class="bg-auLime/40 text-auDark font-bold px-5 py-3.5 rounded-full hover:bg-auLime transition">
+              🌿 Cek Dampak Karbon
+            </button>
+          </div>
+          <p class="text-xs font-semibold text-gray-500 pt-1">
+            Open Circular Economy · Transparan · Fleksibel sebagai Supplier maupun Buyer
+          </p>
+        </div>
+
+        <!-- //* Kartu Preview Ekosistem B2B + B2C -->
+        <div class="md:col-span-5">
+          <div class="bg-auDark p-4 rounded-3xl shadow-2xl">
+            <div class="bg-white rounded-2xl p-5 space-y-4">
+              <div class="relative rounded-xl overflow-hidden h-36">
+                <img src="https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80" loading="lazy" onerror="this.onerror=null;this.src='assets/logo-auwaste.png'" alt="Limbah Plastik Terpilah" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
+                  <div class="flex items-center justify-between w-full">
+                    <div>
+                      <p class="text-[11px] text-auLime font-bold">Smart Matching Aktif · B2B &amp; B2C</p>
+                      <h3 class="font-extrabold text-base text-white">PP Plastic &amp; Botol PET Terpilah</h3>
+                    </div>
+                    <span class="bg-auLime text-auDark text-[11px] font-extrabold px-2.5 py-1 rounded-full">AI Verified</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divide-y divide-gray-100">
+                <div onclick="openAppTab('matching')" class="py-2.5 flex items-center justify-between cursor-pointer hover:bg-emerald-50/60 px-2 rounded-lg transition">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-100 text-auGreen font-extrabold flex items-center justify-center text-xs">B2B</span>
+                    <div>
+                      <p class="font-bold text-sm text-auDark">PT Daur Prima (Recycler)</p>
+                      <p class="text-xs text-gray-500">Serap 1.000 KG PP · Sidoarjo</p>
+                    </div>
+                  </div>
+                  <span class="font-extrabold text-auGreen">96%</span>
+                </div>
+                <div onclick="openAppTab('matching')" class="py-2.5 flex items-center justify-between cursor-pointer hover:bg-emerald-50/60 px-2 rounded-lg transition">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-teal-100 text-teal-900 font-extrabold flex items-center justify-center text-xs">B2C</span>
+                    <div>
+                      <p class="font-bold text-sm text-auDark">Bank Sampah Induk Ngagel</p>
+                      <p class="text-xs text-gray-500">Terima mulai 5 KG · Individu &amp; UMKM</p>
+                    </div>
+                  </div>
+                  <span class="font-extrabold text-auGreen">94%</span>
+                </div>
+                <div onclick="openAppTab('matching')" class="py-2.5 flex items-center justify-between cursor-pointer hover:bg-emerald-50/60 px-2 rounded-lg transition">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 font-extrabold flex items-center justify-center text-xs">UKM</span>
+                    <div>
+                      <p class="font-bold text-sm text-auDark">UMKM Kreasi Plastik Sby</p>
+                      <p class="text-xs text-gray-500">Cari bahan baku daur ulang 10–300 KG</p>
+                    </div>
+                  </div>
+                  <span class="font-extrabold text-auGreen">85%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- //* Katalog Produk Limbah B2B & B2C Bergambar -->
+      <section id="katalog-landing" class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Open Marketplace · B2B &amp; B2C</span>
+            <h2 class="text-2xl md:text-3xl font-black text-auDark mt-1">Katalog Material Unggulan &amp; Featured Listing</h2>
+          </div>
+          <button onclick="openAppTab('listing')" class="text-sm font-bold text-auGreen hover:underline">
+            Lihat Semua Lot B2B &amp; B2C →
+          </button>
+        </div>
+
+        <div id="landing-featured-catalog" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+      </section>
+
+      <!-- //* 5 Kelompok Target Pasar (Revisi Model Bisnis Bagian 2) -->
+      <section id="target-pasar" class="space-y-6">
+        <div class="text-center max-w-2xl mx-auto">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Terbuka untuk Masyarakat &amp; Perusahaan</span>
+          <h2 class="text-2xl md:text-3xl font-black text-auDark mt-1">5 Kelompok Pengguna dalam Ekosistem AuWaste</h2>
+          <p class="text-xs text-gray-500 mt-1.5">Setiap pengguna bebas berperan sebagai Supplier (menawarkan limbah) maupun Buyer (mencari material).</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div onclick="switchGlobalScreen('auth')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+            <span class="text-2xl">🏠</span>
+            <h4 class="font-extrabold text-sm mt-2 mb-1 text-auDark">Individu &amp; Rumah Tangga</h4>
+            <p class="text-[11px] text-gray-600 leading-relaxed">Salurkan material bekas &amp; plastik terpilah rumah tangga dengan mudah ke penerima terpercaya.</p>
+          </div>
+          <div onclick="switchGlobalScreen('auth')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+            <span class="text-2xl">🏪</span>
+            <h4 class="font-extrabold text-sm mt-2 mb-1 text-auDark">UMKM &amp; Usaha Kecil</h4>
+            <p class="text-[11px] text-gray-600 leading-relaxed">Jual sisa kemasan usaha atau beli bahan baku plastik daur ulang untuk kegiatan produksi.</p>
+          </div>
+          <div onclick="switchGlobalScreen('auth')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+            <span class="text-2xl">♻️</span>
+            <h4 class="font-extrabold text-sm mt-2 mb-1 text-auDark">Pengepul &amp; Bank Sampah</h4>
+            <p class="text-[11px] text-gray-600 leading-relaxed">Kumpulkan, pilah, dan salurkan material dari masyarakat maupun usaha langsung ke pengolah.</p>
+          </div>
+          <div onclick="switchGlobalScreen('auth')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+            <span class="text-2xl">🏭</span>
+            <h4 class="font-extrabold text-sm mt-2 mb-1 text-auDark">Perusahaan &amp; Pabrik</h4>
+            <p class="text-[11px] text-gray-600 leading-relaxed">Kelola limbah produksi skala besar dengan estimasi harga wajar &amp; pengiriman terpantau.</p>
+          </div>
+          <div onclick="switchGlobalScreen('auth')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+            <span class="text-2xl">⚙️</span>
+            <h4 class="font-extrabold text-sm mt-2 mb-1 text-auDark">Recycler &amp; Pengolah</h4>
+            <p class="text-[11px] text-gray-600 leading-relaxed">Dapatkan pasokan bahan baku plastik terpilah &amp; terverifikasi AI secara berkelanjutan.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- //* Transparansi 3 Sumber Pendapatan Platform (Revisi Model Bisnis Bagian 1) -->
+      <section id="model-biaya" class="space-y-6">
+        <div class="text-center max-w-2xl mx-auto">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Transparan Sejak Awal</span>
+          <h2 class="text-2xl md:text-3xl font-black text-auDark mt-1">Layanan Dasar Gratis, Biaya Hanya Saat Dibutuhkan</h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-5">
+          <div class="theme-card p-6 rounded-2xl border border-auBorder space-y-2">
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-100 text-auGreen text-[11px] font-extrabold">PRIORITAS UTAMA</span>
+            <h4 class="font-extrabold text-lg text-auDark">1. Transaction Fee</h4>
+            <p class="text-xs text-gray-600 leading-relaxed">Biaya layanan persentase kecil hanya dikenakan ketika transaksi B2B atau B2C benar-benar berhasil disepakati melalui platform. Selalu ditampilkan transparan sebelum Deal.</p>
+          </div>
+          <div class="theme-card p-6 rounded-2xl border border-auBorder space-y-2">
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-sky-100 text-sky-900 text-[11px] font-extrabold">OPSIONAL</span>
+            <h4 class="font-extrabold text-lg text-auDark">2. Logistics Fee</h4>
+            <p class="text-xs text-gray-600 leading-relaxed">Gratis jika antar/jemput mandiri. Biaya pengiriman hanya berlaku bila pengguna memilih menggunakan Partner Logistik AuWaste (Pick-up B2C maupun Truk Wingbox B2B).</p>
+          </div>
+          <div class="theme-card p-6 rounded-2xl border border-auBorder space-y-2">
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-[11px] font-extrabold">OPSIONAL · PROMOSI</span>
+            <h4 class="font-extrabold text-lg text-auDark">3. Featured Listing</h4>
+            <p class="text-xs text-gray-600 leading-relaxed">Fitur promosi tambahan bagi individu maupun perusahaan yang ingin menampilkan listing materialnya lebih menonjol di posisi teratas pencarian dan rekomendasi.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- //* Bottom CTA Banner -->
+      <div class="bg-gradient-to-r from-auDark via-auGreen to-emerald-700 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white shadow-xl">
+        <div class="space-y-2 max-w-2xl">
+          <span class="text-xs font-bold text-auLime uppercase tracking-wider">Terbuka untuk Individu, UMKM &amp; Industri</span>
+          <h2 class="text-2xl md:text-3xl font-extrabold leading-snug">
+            Kami tidak menjual sampah. Kami mempertemukan limbah dari masyarakat &amp; pabrik dengan pihak yang memanfaatkannya kembali.
+          </h2>
+        </div>
+        <button onclick="switchGlobalScreen('auth')" class="bg-auLime text-auDark font-extrabold px-8 py-4 rounded-full shrink-0 hover:scale-105 transition shadow-lg">
+          Gabung Gratis Sekarang →
+        </button>
+      </div>
+    </main>
+  </section>
+
+  <!-- =========================================================
+       //* LAYAR 3: AUTH / REGISTER TERBUKA (B2B & B2C)
+       //* FUNGSI: Pendaftaran sederhana tanpa kode undangan, mendukung
+       //*         5 kategori pengguna (Individu, UMKM, Bank Sampah,
+       //*         Pabrik, Recycler) + Panduan Penggunaan Pertama.
+       ========================================================= -->
+  <section id="screen-auth" class="hidden flex-1 grid md:grid-cols-12 min-h-[calc(100vh-40px)] fade-in">
+    <div class="md:col-span-5 auth-side-panel text-white p-10 flex flex-col justify-between">
+      <div class="inline-flex items-center au-logo-pill px-4 py-2 rounded-2xl cursor-pointer z-10 w-fit" onclick="switchGlobalScreen('landing')">
+        <img src="assets/logo-auwaste.png" alt="AuWaste" class="h-8 w-auto object-contain" />
+      </div>
+      <div class="my-auto py-8 z-10 space-y-6">
+        <div>
+          <span class="inline-block px-3 py-1 rounded-full bg-white/15 text-auLime text-xs font-bold mb-3">Platform Terbuka B2B &amp; B2C</span>
+          <h2 class="text-3xl md:text-4xl font-black leading-tight">
+            Gabung mudah untuk masyarakat umum, UMKM, hingga perusahaan.
+          </h2>
+        </div>
+
+        <!-- //* Panduan Penggunaan Pertama (Sesuai Bagian 3 Dokumen Revisi) -->
+        <div class="bg-white/10 rounded-2xl p-4 border border-white/15 space-y-2.5">
+          <p class="text-xs font-extrabold text-auLime uppercase tracking-wider">Panduan 4 Langkah Mulai:</p>
+          <ol class="space-y-2 text-xs text-emerald-100">
+            <li><strong>1. Pilih Kategori Akun</strong> — Individu, UMKM, Bank Sampah/Pengepul, Pabrik, atau Recycler.</li>
+            <li><strong>2. Foto &amp; Tentukan Material</strong> — AI bantu mengenali jenis plastik &amp; estimasi harga wajar.</li>
+            <li><strong>3. Smart Matching &amp; Nego</strong> — Temukan mitra terdekat atau terima penawaran langsung.</li>
+            <li><strong>4. Serah Terima &amp; Tracking</strong> — Pilih antar mandiri atau Partner Logistik dengan bukti serah terima.</li>
+          </ol>
+        </div>
+      </div>
+      <p class="text-xs text-emerald-200/70 z-10">Open Circular Economy · B2B &amp; B2C · Transparan &amp; Terverifikasi</p>
+    </div>
+
+    <div class="md:col-span-7 bg-auBg flex items-center justify-center p-6 md:p-10">
+      <div class="theme-card border border-auBorder rounded-3xl p-7 md:p-8 w-full max-w-xl shadow-lg">
+        <div class="grid grid-cols-2 bg-auBg p-1.5 rounded-full mb-6">
+          <button id="btn-mode-login" onclick="toggleAuthMode('login')" class="py-2 rounded-full text-sm font-semibold text-gray-600 transition">Masuk</button>
+          <button id="btn-mode-register" onclick="toggleAuthMode('register')" class="py-2 rounded-full text-sm font-semibold bg-auGreen text-white transition">Daftar Gratis</button>
+        </div>
+
+        <h3 id="auth-title" class="text-2xl font-black text-auDark mb-1">Daftar Gratis — Terbuka untuk Umum &amp; Bisnis</h3>
+        <p class="text-xs text-gray-500 mb-5">Tanpa kode undangan. Cukup pilih kategori pengguna sesuai kebutuhan Anda.</p>
+
+        <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+          <!-- //* Pilihan 5 Kategori Pengguna (B2C & B2B) -->
+          <div id="register-category-wrap" class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold mb-2">1. Kategori Pengguna Anda</label>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" data-category="Individu / Rumah Tangga (B2C)" onclick="selectAccountCategory('Individu / Rumah Tangga (B2C)', 'B2C')" class="category-btn px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition">🏠 Individu / Rumah Tangga</button>
+                <button type="button" data-category="UMKM / Usaha Kecil (B2C)" onclick="selectAccountCategory('UMKM / Usaha Kecil (B2C)', 'B2C')" class="category-btn px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition">🏪 UMKM / Usaha Kecil</button>
+                <button type="button" data-category="Bank Sampah / Pengepul (B2C)" onclick="selectAccountCategory('Bank Sampah / Pengepul (B2C)', 'B2C')" class="category-btn px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition">♻️ Bank Sampah / Pengepul</button>
+                <button type="button" data-category="Perusahaan / Pabrik (B2B)" onclick="selectAccountCategory('Perusahaan / Pabrik (B2B)', 'B2B')" class="category-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-100 border border-auGreen text-auDark transition">🏭 Perusahaan / Pabrik</button>
+                <button type="button" data-category="Recycler / Pengolah (B2B)" onclick="selectAccountCategory('Recycler / Pengolah (B2B)', 'B2B')" class="category-btn px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition">⚙️ Recycler / Pengolah</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold mb-2">2. Peran di Platform (Bisa Fleksibel)</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="selectRole('Supplier & Buyer')" class="role-btn px-4 py-1.5 rounded-full text-xs font-bold bg-auLime/60 border border-auGreen text-auDark transition">Supplier &amp; Buyer</button>
+                <button type="button" onclick="selectRole('Supplier (Tawarkan Limbah)')" class="role-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 transition">Supplier (Tawarkan Limbah)</button>
+                <button type="button" onclick="selectRole('Buyer (Cari Material)')" class="role-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 transition">Buyer (Cari Material)</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="register-fields" class="grid sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-xs font-bold mb-1">Nama lengkap</label>
+              <input type="text" id="auth-name" required placeholder="Nama Anda" value="Achmad Syafiq Nauval" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-auGreen" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">No. HP / WhatsApp</label>
+              <input type="text" required placeholder="08xx xxxx xxxx" value="081234567890" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-auGreen" />
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-xs font-bold mb-1">Email</label>
+              <input type="email" required placeholder="nama@email.com" value="syafiq@auwaste.id" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-auGreen" />
+            </div>
+            <div>
+              <label id="auth-company-label" class="block text-xs font-bold mb-1">Nama Perusahaan / Pabrik / Usaha</label>
+              <input type="text" id="auth-company" required placeholder="PT / UMKM / Pribadi" value="PT Polimer Jaya Surabaya" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-auGreen" />
+            </div>
+          </div>
+
+          <!-- //* Info Verifikasi Terbuka sesuai jenis pengguna -->
+          <div class="open-access-box rounded-xl p-3">
+            <p class="text-xs font-extrabold text-auDark">✓ Akses Terbuka &amp; Verifikasi Sesuai Jenis Akun</p>
+            <p class="text-[11px] text-gray-600 mt-0.5">Pengguna individu langsung aktif menggunakan fitur dasar; akun UMKM, Bank Sampah, &amp; Perusahaan mendapat lencana verifikasi mitra untuk meningkatkan kepercayaan transaksi.</p>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-xs font-bold mb-1">Kata sandi</label>
+              <input type="password" required value="12345678" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Konfirmasi kata sandi</label>
+              <input type="password" required value="12345678" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-auGreen hover:bg-auDark text-white font-extrabold py-3.5 rounded-full text-sm transition shadow-lg mt-2">
+            Buat Akun &amp; Masuk ke Platform →
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       //* LAYAR 4: MAIN DASHBOARD APPLICATION (SIDEBAR + 7 VIEWS)
+       ========================================================= -->
+  <section id="screen-app" class="hidden flex-1 flex flex-col md:flex-row min-h-[calc(100vh-40px)]">
+    <div class="md:hidden bg-auDark text-white px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2 bg-white/95 px-2.5 py-1 rounded-xl">
+        <img src="assets/logo-auwaste.png" alt="AuWaste" class="h-6 w-auto object-contain" />
+      </div>
+      <button onclick="toggleMobileSidebar()" class="px-3 py-1 rounded-lg bg-white/15 text-xs font-bold">☰ Menu</button>
+    </div>
+
+    <!-- //* Sidebar Navigasi Utama -->
+    <aside id="app-sidebar" class="hidden md:flex w-full md:w-64 app-sidebar text-white flex-col justify-between p-5 shrink-0">
+      <div>
+        <div class="mb-7 cursor-pointer space-y-1.5" onclick="switchGlobalScreen('landing')">
+          <div class="au-logo-pill px-3.5 py-2.5 rounded-2xl inline-flex items-center justify-center w-full">
+            <img src="assets/logo-auwaste.png" alt="AuWaste" class="h-8 w-auto object-contain" />
+          </div>
+          <span class="block text-center text-[10px] text-auLime font-bold tracking-widest">OPEN B2B &amp; B2C PLATFORM</span>
+        </div>
+
+        <nav class="space-y-1.5 text-sm">
+          <button onclick="openAppTab('dashboard')" id="nav-dashboard" class="app-nav w-full text-left px-4 py-2.5 rounded-xl font-semibold bg-auGreen text-white flex items-center gap-3">📊 Dashboard</button>
+          <button onclick="openAppTab('beli-material')" id="nav-beli-material" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">🛒 Beli Material</button>
+          <button onclick="openAppTab('jual-material')" id="nav-jual-material" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">💰 Jual Material (AI)</button>
+          <button onclick="openAppTab('matching')" id="nav-matching" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">🎯 Smart Match &amp; Nego</button>
+          <button onclick="openAppTab('transaksi')" id="nav-transaksi" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">🚚 Transaksi &amp; Logistik</button>
+          <button onclick="openAppTab('laporan')" id="nav-laporan" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">📑 Laporan Keuangan</button>
+          <button onclick="openAppTab('analytics')" id="nav-analytics" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">📈 Analytics &amp; Revenue</button>
+          <button onclick="openAppTab('esg')" id="nav-esg" class="app-nav w-full text-left px-4 py-2.5 rounded-xl text-emerald-100/80 hover:bg-white/10 flex items-center gap-3">🌿 ESG &amp; Karbon</button>
+        </nav>
+      </div>
+
+      <div class="space-y-3 mt-6">
+        <div class="bg-white/10 rounded-2xl p-3.5 text-xs border border-white/10">
+          <p class="font-bold text-auLime" id="sidebar-user-role">Supplier &amp; Buyer · B2B</p>
+          <p class="truncate text-white font-semibold mt-0.5" id="sidebar-company">PT Polimer Jaya Surabaya</p>
+          <p class="text-[10px] text-emerald-200/80 mt-1 truncate" id="sidebar-user-category">Perusahaan / Pabrik (B2B)</p>
+        </div>
+        <button onclick="switchGlobalScreen('auth')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white/10 hover:bg-red-600/80 text-sm font-semibold transition">
+          ← Ganti Akun / Daftar Baru
+        </button>
+      </div>
+    </aside>
+
+    <!-- //* Area Konten Utama Dashboard -->
+    <main class="flex-1 flex flex-col overflow-y-auto bg-auBg">
+      <div class="market-ticker-wrap">
+        <div class="market-ticker-track"></div>
+      </div>
+
+      <div class="p-6 md:p-8 max-w-6xl w-full mx-auto">
+
+        <!-- =================================================
+             //* VIEW A: DASHBOARD UTAMA (B2B & B2C)
+             ================================================= -->
+        <div id="tab-dashboard" class="app-tab space-y-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold text-auGreen uppercase tracking-wider">Ringkasan Aktivitas · Platform Terbuka B2B &amp; B2C</p>
+              <h2 class="text-2xl md:text-3xl font-black text-auDark">Halo, <span id="dash-welcome-name">PT Polimer Jaya Surabaya</span></h2>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="openAppTab('beli-material')" class="px-4 py-2.5 rounded-full bg-auLime text-auDark font-extrabold text-xs hover:opacity-90 transition shadow">
+                🛒 Beli Material
+              </button>
+              <button onclick="openAppTab('jual-material')" class="px-5 py-2.5 rounded-full bg-auGreen text-white font-bold text-xs hover:bg-auDark transition shadow">
+                💰 Jual Material (AI)
+              </button>
+              <button onclick="openAppTab('laporan')" class="px-4 py-2.5 rounded-full bg-white border border-auBorder text-auDark font-bold text-xs hover:bg-emerald-50 transition">
+                📑 Laporan Keuangan
+              </button>
+            </div>
+          </div>
+
+          <!-- //* 4 Kartu KPI -->
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <p class="text-xs text-gray-500 font-semibold">Total Stok Material Aktif</p>
+              <p id="dash-total-kg" class="text-2xl font-black text-auDark mt-1">3.125 KG</p>
+              <span class="inline-block mt-2 text-[11px] font-bold text-auGreen bg-emerald-100 px-2 py-0.5 rounded-full" id="dash-active-count">4 B2B · 3 B2C Aktif</span>
+            </div>
+            <div onclick="openAppTab('laporan')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+              <p class="text-xs text-gray-500 font-semibold">Total Omset (Terjual)</p>
+              <p id="dash-est-value" class="text-2xl font-black text-auGreen mt-1">Rp 14.610.000</p>
+              <span class="inline-block mt-2 text-[11px] font-semibold text-gray-500">Klik untuk buka Laporan →</span>
+            </div>
+            <div onclick="openAppTab('laporan')" class="theme-card theme-card-hover p-5 rounded-2xl border border-auBorder cursor-pointer">
+              <p class="text-xs text-gray-500 font-semibold">Laba Bersih (Net Profit)</p>
+              <p id="dash-net-profit" class="text-2xl font-black text-auDark mt-1">Rp 7.775.450</p>
+              <span class="inline-block mt-2 text-[11px] font-bold text-auDark bg-auLime px-2 py-0.5 rounded-full">Omset - Beli - Fee/Ongkir</span>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <p class="text-xs text-gray-500 font-semibold">Emisi CO₂ Dicegah</p>
+              <p id="dash-total-co2" class="text-2xl font-black text-emerald-600 mt-1">6.15 Ton CO₂</p>
+              <span class="inline-block mt-2 text-[11px] font-semibold text-gray-500">Kontribusi B2B &amp; B2C</span>
+            </div>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-8 theme-card p-6 rounded-3xl border border-auBorder">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-extrabold text-lg text-auDark">Listing Material Aktif (B2B &amp; B2C)</h3>
+                  <p class="text-xs text-gray-500">Klik produk untuk melihat transparansi biaya &amp; opsi logistik.</p>
+                </div>
+                <button onclick="openAppTab('listing')" class="text-xs font-bold text-auGreen hover:underline">Lihat Semua →</button>
+              </div>
+              <div id="dashboard-active-list" class="divide-y divide-gray-100"></div>
+            </div>
+
+            <div class="lg:col-span-4 space-y-4">
+              <div class="bg-auDark text-white p-6 rounded-3xl space-y-3.5 shadow-lg">
+                <span class="px-2.5 py-1 rounded-full bg-auLime text-auDark text-[11px] font-extrabold">⭐ FEATURED LISTING</span>
+                <h4 class="font-extrabold text-lg leading-snug">Ingin listing Anda terjual lebih cepat?</h4>
+                <p class="text-xs text-emerald-100/90 leading-relaxed">Aktifkan promosi Featured Listing opsional saat membuat penawaran agar material Anda tampil paling atas bagi buyer &amp; pengepul.</p>
+                <button onclick="openAppTab('add-listing')" class="w-full py-2.5 rounded-full bg-auLime text-auDark font-extrabold text-xs hover:opacity-95 transition">
+                  Buat Listing Baru →
+                </button>
+              </div>
+
+              <div class="theme-card p-5 rounded-3xl border border-auBorder space-y-3">
+                <h4 class="font-extrabold text-sm text-auDark">Panduan Cepat &amp; Bantuan</h4>
+                <p class="text-xs text-gray-500">Pantau status pengiriman, lihat bukti serah terima digital, atau laporkan kendala kapan saja.</p>
+                <button onclick="openAppTab('transaksi')" class="w-full py-2 rounded-full border border-auGreen text-auGreen font-bold text-xs hover:bg-emerald-50 transition">
+                  Buka Transaksi &amp; Tracking 🚚
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW B: MENU BELI MATERIAL (TERPISAH DARI JUAL + BEST SELLER)
+             ================================================= -->
+        <div id="tab-beli-material" class="app-tab hidden space-y-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Menu Pembelian Limbah · B2B &amp; B2C</span>
+              <h2 class="text-2xl font-black text-auDark mt-0.5">🛒 Beli Material Limbah</h2>
+              <p class="text-xs text-gray-500">Pilih material, tentukan pengiriman Lalamove / Deliveree, dan dapatkan Struk Pembelian otomatis.</p>
+            </div>
+            <button onclick="openAppTab('jual-material')" class="px-5 py-2.5 rounded-full bg-auDark text-auLime font-extrabold text-xs hover:opacity-95 transition shadow">
+              💰 Ingin Menjual? Ke Menu Jual →
+            </button>
+          </div>
+
+          <!-- //* Strip Produk Best Seller (Banyak Terbeli / Terjual) -->
+          <div class="space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-sm font-extrabold text-auDark">🔥 Paling Laris &amp; Best Seller (Banyak Terbeli / Terjual)</h3>
+              <button id="btn-filter-bestseller" onclick="toggleBestSellerFilter()" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-orange-50 border border-orange-300 text-orange-700 hover:bg-orange-100 transition">
+                🔥 Filter Best Seller Saja
+              </button>
+            </div>
+            <div id="bestseller-showcase" class="grid md:grid-cols-3 gap-3"></div>
+          </div>
+
+          <!-- //* Toolbar Filter Segmen B2B/B2C, Status, Search, Sortir, & Toggle Grid/List -->
+          <div class="theme-card p-4 rounded-2xl border border-auBorder space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
+              <div id="listing-segment-filters" class="flex flex-wrap gap-2"></div>
+              <div id="listing-filters" class="flex flex-wrap gap-1.5"></div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <input type="text" oninput="handleListingSearch(this.value)" placeholder="🔍 Cari PP, PET, Bank Sampah, UMKM, Surabaya..." class="px-4 py-2 text-xs rounded-full border border-gray-200 focus:outline-none focus:border-auGreen w-full sm:w-72" />
+              <div class="flex flex-wrap items-center gap-2">
+                <select onchange="handleListingSort(this.value)" class="px-3 py-2 text-xs rounded-full border border-gray-200 focus:outline-none">
+                  <option value="terlaris">Urutkan: 🔥 Paling Laris (Best Seller)</option>
+                  <option value="featured">⭐ Featured di Atas</option>
+                  <option value="harga-tinggi">Harga Tertinggi</option>
+                  <option value="berat-besar">Tonase Terbesar (B2B)</option>
+                  <option value="berat-kecil">Skala Kecil Dulu (B2C)</option>
+                </select>
+                <div class="flex bg-auBg rounded-full p-1 border border-auBorder">
+                  <button onclick="setListingViewMode('grid')" class="px-3 py-1 rounded-full text-xs font-bold hover:bg-white transition">⊞ Grid</button>
+                  <button onclick="setListingViewMode('list')" class="px-3 py-1 rounded-full text-xs font-bold hover:bg-white transition">☰ List</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="full-waste-list"></div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW C: MENU JUAL MATERIAL (TERPISAH DARI BELI + LALAMOVE/DELIVEREE + KARCIS NOTA)
+             ================================================= -->
+        <div id="tab-jual-material" class="app-tab hidden space-y-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Menu Penjualan Material · AI Scanner</span>
+              <h2 class="text-2xl font-black text-auDark mt-0.5">💰 Jual Material Limbah &amp; Cetak Karcis / Nota</h2>
+              <p class="text-xs text-gray-500">Pilih pengiriman Lalamove / Deliveree, lalu setelah dijual langsung diarahkan ke Karcis/Nota &amp; Ucapan Terima Kasih.</p>
+            </div>
+            <button onclick="openAppTab('beli-material')" class="px-4 py-2 rounded-full bg-white border border-auBorder text-xs font-bold text-auDark hover:bg-emerald-50 transition">
+              🛒 Ke Menu Beli Material
+            </button>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-5 space-y-4">
+              <div class="theme-card p-5 rounded-3xl border border-auBorder space-y-4">
+                <div id="ai-scan-frame" class="ai-scan-frame bg-auDark h-56 relative">
+                  <div class="ai-scan-laser"></div>
+                  <img id="ai-preview-image" src="https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80" loading="lazy" onerror="this.onerror=null;this.src='assets/logo-auwaste.png'" alt="Preview AI" class="w-full h-full object-cover" />
+                  <span class="absolute top-3 left-3 bg-black/70 text-auLime text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
+                    AI VISION READY
+                  </span>
+                </div>
+
+                <label class="block w-full text-center border-2 border-dashed border-auGreen/50 rounded-2xl p-3 cursor-pointer hover:bg-emerald-50/50 transition">
+                  <input type="file" accept="image/*" onchange="simulatePhotoUpload(this)" class="hidden" />
+                  <span id="upload-label" class="text-xs font-bold text-auGreen">📷 Klik untuk Unggah Foto Material dari Perangkat</span>
+                </label>
+
+                <div>
+                  <p class="text-[11px] font-bold text-gray-500 mb-2">Atau uji cepat 1-klik sampel foto:</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button type="button" onclick="useDemoAISample('PP')" class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-auDark hover:bg-auLime">Sampel PP</button>
+                    <button type="button" onclick="useDemoAISample('PET')" class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 hover:bg-amber-200">Sampel PET</button>
+                    <button type="button" onclick="useDemoAISample('HDPE')" class="px-3 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-900 hover:bg-blue-200">Sampel HDPE</button>
+                    <button type="button" onclick="useDemoAISample('ABS')" class="px-3 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-900 hover:bg-purple-200">Sampel ABS</button>
+                  </div>
+                </div>
+
+                <div class="bg-auDark text-white rounded-2xl p-4 space-y-2">
+                  <p id="ai-detected-title" class="font-extrabold text-sm text-auLime">Terdeteksi: PP (Polypropylene)</p>
+                  <p id="ai-confidence" class="text-[11px] text-emerald-100">✓ Keyakinan 97.4% — Siap dijual</p>
+                  <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center">
+                    <div>
+                      <p class="text-[10px] text-emerald-200/75">Harga Wajar</p>
+                      <p id="ai-price-range" class="text-[11px] font-bold text-white">Rp 7.800–8.400</p>
+                    </div>
+                    <div>
+                      <p class="text-[10px] text-emerald-200/75">Kemurnian</p>
+                      <p id="ai-purity-val" class="text-xs font-extrabold text-auLime">96.8%</p>
+                    </div>
+                    <div>
+                      <p class="text-[10px] text-emerald-200/75">Kadar Air</p>
+                      <p id="ai-moisture-val" class="text-xs font-extrabold text-white">&lt; 1.2%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <form onsubmit="publishNewListing(event)" class="lg:col-span-7 theme-card p-6 rounded-3xl border border-auBorder space-y-4">
+              <h3 class="font-extrabold text-lg text-auDark">Form Penjualan Material</h3>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Segmen Penjualan</label>
+                  <select id="input-segment" onchange="handleSegmentInputChange(this.value)" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200">
+                    <option value="B2C">🏠 B2C (Individu / UMKM / Bank Sampah)</option>
+                    <option value="B2B" selected>🏭 B2B (Perusahaan / Pabrik / Skala Besar)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Tipe Penjual (Supplier)</label>
+                  <select id="input-seller-type" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200">
+                    <option>Perusahaan / Pabrik</option>
+                    <option>Individu / Rumah Tangga</option>
+                    <option>UMKM / Usaha Kecil</option>
+                    <option>Bank Sampah / Komunitas</option>
+                    <option>Pengepul</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Jenis Plastik / Material</label>
+                  <select id="input-jenis" onchange="runAISimulation()" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200">
+                    <option value="PP">PP (Polypropylene)</option>
+                    <option value="PET">PET Botol Bersih</option>
+                    <option value="HDPE">HDPE Regrind / Jerigen</option>
+                    <option value="LDPE">LDPE Film / Kemasan</option>
+                    <option value="ABS">ABS Scrap Elektronik</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Berat Material Dijual (KG)</label>
+                  <input type="number" id="input-berat" oninput="updateSellSummary()" required min="1" value="500" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200" />
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Harga Jual per KG (Rp)</label>
+                  <input type="number" id="input-harga-jual" oninput="updateSellSummary()" required min="500" value="8100" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Mitra Pembeli Tujuan</label>
+                  <select id="input-buyer-target" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200">
+                    <option>PT Daur Prima Nusantara (Recycler B2B)</option>
+                    <option>Bank Sampah Induk Ngagel Berseri (B2C)</option>
+                    <option>CV Surya Polimer Gresik (Pengepul Besar)</option>
+                    <option>UMKM Kreasi Plastik Surabaya (UMKM)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Kondisi / Grade Kualitas</label>
+                  <select id="input-kualitas" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200">
+                    <option>Kualitas A</option>
+                    <option>Kualitas B</option>
+                    <option>Kualitas C</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1.5">Lokasi Penjemputan</label>
+                  <input type="text" id="input-lokasi" required value="Surabaya, Ngagel Rejo" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200" />
+                </div>
+              </div>
+
+              <!-- //* Pilihan Media Pengiriman LALAMOVE / DELIVEREE / MANDIRI -->
+              <div class="p-4 rounded-2xl border border-auBorder bg-emerald-50/40 space-y-3">
+                <label class="block text-xs font-extrabold text-auDark">🚚 Pilih Media Pengiriman (Lalamove / Deliveree / Mandiri)</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" id="sell-provider-Lalamove" onclick="selectSellLogisticsProvider('Lalamove')" class="px-3 py-2 rounded-xl text-xs font-extrabold border provider-pill-lalamove transition">🟠 Lalamove</button>
+                  <button type="button" id="sell-provider-Deliveree" onclick="selectSellLogisticsProvider('Deliveree')" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">🟢 Deliveree</button>
+                  <button type="button" id="sell-provider-Mandiri" onclick="selectSellLogisticsProvider('Mandiri')" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">🏠 Mandiri</button>
+                </div>
+                <select id="sell-logistics-select" onchange="updateSellSummary()" class="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 bg-white"></select>
+                <p id="sell-logistics-meta" class="text-[11px] font-semibold text-auGreen"></p>
+
+                <div class="border-t border-emerald-200/70 pt-2.5 space-y-1 text-xs">
+                  <div class="flex justify-between"><span class="text-gray-600">Estimasi Omset Penjualan</span><strong id="sell-est-omset" class="text-auDark">Rp 0</strong></div>
+                  <div class="flex justify-between"><span class="text-gray-600">Transaction Fee</span><strong id="sell-est-fee" class="text-amber-700">- Rp 0</strong></div>
+                  <div class="flex justify-between"><span class="text-gray-600">Biaya Pengiriman</span><strong id="sell-est-ongkir" class="text-auDark">Rp 0</strong></div>
+                  <div class="flex justify-between pt-1.5 border-t border-emerald-200/70 font-black text-sm">
+                    <span class="text-auDark">Estimasi Diterima Bersih</span>
+                    <span id="sell-est-net" class="text-auGreen">Rp 0</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold mb-1.5">Catatan Tambahan Material (Opsional)</label>
+                <textarea id="input-deskripsi" rows="2" placeholder="Contoh: Botol PET bening sudah dicuci bersih & dipilah tanpa tutup..." class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200"></textarea>
+              </div>
+
+              <!-- //* Opsi Featured Listing -->
+              <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-amber-50/80 border border-amber-300 cursor-pointer">
+                <input type="checkbox" id="input-featured" class="mt-1 w-4 h-4 accent-auGreen" />
+                <div>
+                  <p class="text-xs font-extrabold text-amber-950">⭐ Aktifkan Featured Listing (Opsional · Simulasi Rp 25.000)</p>
+                  <p class="text-[11px] text-amber-900/80">Tampilkan material Anda di posisi sorotan agar lebih cepat terjual.</p>
+                </div>
+              </label>
+
+              <button type="submit" class="w-full py-3.5 rounded-full bg-auGreen hover:bg-auDark text-white font-extrabold text-sm transition shadow-lg">
+                🎟️ Jual Material &amp; Buka Karcis / Nota →
+              </button>
+            </form>
+          </div>
+
+          <!-- //* Riwayat Penjualan & Karcis Nota Saya -->
+          <div class="theme-card p-6 rounded-3xl border border-auBorder">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-extrabold text-base text-auDark">🎟️ Riwayat Penjualan &amp; Karcis Nota Saya</h3>
+              <button onclick="openAppTab('laporan')" class="text-xs font-bold text-auGreen hover:underline">Lihat Laporan Lengkap →</button>
+            </div>
+            <div id="my-sales-history-list" class="divide-y divide-gray-100"></div>
+          </div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW D: SMART MATCHING B2B & B2C + NEGOSIASI
+             ================================================= -->
+        <div id="tab-matching" class="app-tab hidden space-y-6 fade-in">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">AI Smart Matching · B2B &amp; B2C</span>
+            <h2 class="text-2xl font-black text-auDark mt-0.5">Rekomendasi Mitra Penerima &amp; Pembeli</h2>
+            <p class="text-xs text-gray-500">Mencocokkan material Anda dengan Recycler industri, Pengepul, Bank Sampah, maupun UMKM terdekat.</p>
+          </div>
+          <div id="smart-match-list" class="space-y-4"></div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW E: TRANSAKSI, TRANSPARANSI BIAYA & LOGISTIK
+             ================================================= -->
+        <div id="tab-transaksi" class="app-tab hidden space-y-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-black text-auDark">Transaksi, Biaya Transparan &amp; Logistik</h2>
+              <p id="active-trx-title" class="text-xs text-gray-500 font-semibold mt-0.5">TRX-0034 (B2B) · PT Daur Prima Nusantara</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="openHandoverReceiptModal()" class="px-4 py-2.5 rounded-full bg-white border border-auBorder text-auDark font-bold text-xs hover:bg-emerald-50 transition">
+                📄 Bukti Serah Terima
+              </button>
+              <button onclick="openReportIssueModal()" class="px-4 py-2.5 rounded-full bg-amber-100 text-amber-900 font-bold text-xs hover:bg-amber-200 transition">
+                ⚠ Laporkan Kendala
+              </button>
+              <button onclick="advanceTransactionStep()" class="px-5 py-2.5 rounded-full bg-auLime text-auDark font-extrabold text-xs hover:opacity-95 transition shadow">
+                ▶ Simulasikan Tahap Berikutnya
+              </button>
+            </div>
+          </div>
+
+          <div class="theme-card p-6 rounded-3xl border border-auBorder space-y-5">
+            <div id="trx-stepper" class="grid grid-cols-5 gap-2 relative"></div>
+
+            <!-- //* Transparansi Transaction Fee & Logistics Fee untuk Transaksi Aktif -->
+            <div id="active-trx-fee-summary"></div>
+
+            <!-- //* Peta Visual Tracking Pengiriman -->
+            <div class="fleet-map-box p-6 text-white space-y-5">
+              <div class="fleet-map-grid"></div>
+              <div class="relative z-10 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-auLime">
+                    <span class="w-2 h-2 rounded-full bg-auLime radar-ping"></span>
+                    PEMANTAUAN PENGIRIMAN REAL-TIME
+                  </span>
+                  <p id="active-trx-fleet-meta" class="text-xs text-emerald-100 mt-0.5">Logistik: L 9482 UX · Wingbox</p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-white/10 text-[11px] font-bold">Bukti Serah Terima Digital ✓</span>
+              </div>
+
+              <div class="relative z-10 py-6">
+                <div class="flex justify-between text-[11px] text-emerald-200/80 font-bold mb-3">
+                  <span>📍 Lokasi Supplier</span>
+                  <span>⚖ Timbang &amp; Verifikasi</span>
+                  <span>♻ Lokasi Penerima / Buyer</span>
+                </div>
+                <div class="relative h-2.5 bg-white/15 rounded-full">
+                  <div id="fleet-route-progress" class="h-full bg-gradient-to-r from-emerald-400 to-auLime rounded-full transition-all duration-700" style="width: 48%"></div>
+                  <div id="fleet-truck-marker" class="truck-marker absolute -top-4 w-10 h-10 rounded-full bg-auLime text-auDark flex items-center justify-center text-lg font-bold shadow-xl" style="left: calc(48% - 20px)">
+                    🚚
+                  </div>
+                </div>
+              </div>
+
+              <p id="fleet-live-status" class="relative z-10 text-xs text-emerald-100 bg-black/25 px-4 py-2.5 rounded-xl border border-white/10">
+                Proses penimbangan &amp; verifikasi serah terima material sedang berlangsung.
+              </p>
+            </div>
+          </div>
+
+          <div class="theme-card p-6 rounded-3xl border border-auBorder">
+            <h3 class="font-extrabold text-lg text-auDark mb-3">Riwayat Transaksi (B2B &amp; B2C)</h3>
+            <div id="transaction-history-list" class="divide-y divide-gray-100"></div>
+          </div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW E2: MENU LAPORAN KEUANGAN (OMSET, LABA BERSIH, TERJUAL, BEST SELLER, STRUK)
+             ================================================= -->
+        <div id="tab-laporan" class="app-tab hidden space-y-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Pembukuan Otomatis AuWaste</span>
+              <h2 class="text-2xl font-black text-auDark mt-0.5">📑 Laporan Omset, Pembelian &amp; Laba Bersih</h2>
+              <p class="text-xs text-gray-500">Setiap pembelian dan penjualan otomatis tercatat lengkap dengan struk/karcis nota resmi.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="openAppTab('beli-material')" class="px-4 py-2.5 rounded-full bg-white border border-auBorder text-auDark font-bold text-xs hover:bg-emerald-50 transition">
+                🛒 Beli Material
+              </button>
+              <button onclick="openAppTab('jual-material')" class="px-4 py-2.5 rounded-full bg-auGreen text-white font-bold text-xs hover:bg-auDark transition">
+                💰 Jual Material
+              </button>
+              <button onclick="window.print()" class="px-5 py-2.5 rounded-full bg-auDark text-auLime font-extrabold text-xs hover:opacity-95 transition shadow">
+                🖨 Cetak Laporan
+              </button>
+            </div>
+          </div>
+
+          <!-- //* 4 Kartu Ringkasan Keuangan -->
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-auDark text-white p-5 rounded-2xl shadow-lg">
+              <p class="text-xs text-emerald-200 font-semibold">Total Omset (Terjual)</p>
+              <p id="lap-omset" class="text-2xl font-black text-auLime mt-1">Rp 0</p>
+              <p id="lap-omset-meta" class="text-[11px] text-emerald-200/80 mt-1">0 Transaksi Terjual</p>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <p class="text-xs text-gray-500 font-semibold">Total Pembelian (Modal)</p>
+              <p id="lap-pembelian" class="text-2xl font-black text-sky-700 mt-1">Rp 0</p>
+              <p id="lap-pembelian-meta" class="text-[11px] text-gray-500 mt-1">0 Transaksi Beli</p>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border-2 border-auGreen bg-emerald-50/40">
+              <p class="text-xs text-auGreen font-extrabold">Laba Bersih (Net Profit)</p>
+              <p id="lap-laba-bersih" class="text-2xl font-black text-auGreen mt-1">Rp 0</p>
+              <p id="lap-laba-margin" class="text-[11px] text-gray-600 mt-1">Margin 0%</p>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <p class="text-xs text-gray-500 font-semibold">Total Volume Material</p>
+              <p id="lap-total-kg" class="text-2xl font-black text-auDark mt-1">0 KG</p>
+              <p id="lap-total-nota" class="text-[11px] text-gray-500 mt-1">0 Struk Tercatat</p>
+            </div>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 theme-card p-6 rounded-3xl border border-auBorder space-y-4">
+              <h3 class="font-extrabold text-base text-auDark">Perbandingan Omset vs Pembelian vs Laba Bersih</h3>
+              <div id="lap-visual-bars" class="space-y-3.5"></div>
+            </div>
+            <div class="lg:col-span-5 theme-card p-6 rounded-3xl border border-auBorder space-y-2">
+              <h3 class="font-extrabold text-base text-auDark">🔥 Material Best Seller (Paling Laris)</h3>
+              <div id="lap-bestseller-list" class="divide-y divide-gray-100"></div>
+            </div>
+          </div>
+
+          <!-- //* Tabel Rincian Transaksi & Arsip Struk / Karcis -->
+          <div class="theme-card p-6 rounded-3xl border border-auBorder space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h3 class="font-extrabold text-base text-auDark">Rincian Transaksi &amp; Arsip Struk / Karcis Nota</h3>
+              <div id="lap-filter-btns" class="flex flex-wrap gap-2"></div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-auBorder text-[11px] uppercase text-gray-500">
+                    <th class="py-2.5 px-3">Kode Nota</th>
+                    <th class="py-2.5 px-3">Tipe</th>
+                    <th class="py-2.5 px-3">Material &amp; Mitra</th>
+                    <th class="py-2.5 px-3">Pengiriman</th>
+                    <th class="py-2.5 px-3">Nilai</th>
+                    <th class="py-2.5 px-3 text-right">Struk / Karcis</th>
+                  </tr>
+                </thead>
+                <tbody id="lap-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW F: ANALYTICS PASAR & SIMULASI 3 REVENUE STREAM
+             ================================================= -->
+        <div id="tab-analytics" class="app-tab hidden space-y-6 fade-in">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Laporan Aktivitas &amp; Model Pendapatan</span>
+            <h2 class="text-2xl font-black text-auDark mt-0.5">Analytics Pasar &amp; Simulasi Pendapatan Platform</h2>
+            <p class="text-xs text-gray-500">Memantau perputaran transaksi B2B &amp; B2C serta 3 sumber pendapatan AuWaste (tarif simulasi dapat disesuaikan operasional).</p>
+          </div>
+
+          <!-- //* 3 Sumber Pendapatan Platform (Sesuai Tabel Model Bisnis Revisi) -->
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="bg-auDark text-white p-5 rounded-2xl shadow-lg">
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-auLime text-auDark">PRIORITAS UTAMA</span>
+              <p class="text-xs text-emerald-200 mt-2">1. Estimasi Transaction Fee</p>
+              <p id="rev-transaction-fee" class="text-2xl font-black text-auLime mt-1">Rp 232.350</p>
+              <p class="text-[11px] text-emerald-200/75 mt-1">Persentase dari transaksi B2B &amp; B2C berhasil</p>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-sky-100 text-sky-900">OPSIONAL</span>
+              <p class="text-xs text-gray-500 mt-2">2. Estimasi Logistics Fee</p>
+              <p id="rev-logistics-fee" class="text-2xl font-black text-auDark mt-1">Rp 210.000</p>
+              <p class="text-[11px] text-gray-500 mt-1">Penggunaan Partner Logistik AuWaste</p>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-900">OPSIONAL</span>
+              <p class="text-xs text-gray-500 mt-2">3. Estimasi Featured Listing</p>
+              <p id="rev-featured-fee" class="text-2xl font-black text-auGreen mt-1">Rp 50.000</p>
+              <p id="rev-featured-count" class="text-[11px] text-gray-500 mt-1">2 Listing Dipromosikan</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <p class="text-xs text-gray-500">Total Nilai Perputaran Material (GMV)</p>
+              <p id="analytics-total-revenue" class="text-2xl font-black text-auGreen mt-1">Rp 15.050.000</p>
+            </div>
+            <div class="theme-card p-5 rounded-2xl border border-auBorder">
+              <p class="text-xs text-gray-500">Sebaran Segmen Transaksi</p>
+              <p id="analytics-trx-split" class="text-2xl font-black text-auDark mt-1">2 B2B · 2 B2C</p>
+            </div>
+          </div>
+
+          <div class="theme-card p-6 rounded-3xl border border-auBorder space-y-4">
+            <h3 class="font-extrabold text-lg text-auDark">Distribusi Volume Material per Jenis Polimer</h3>
+            <div id="analytics-material-bars" class="space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- =================================================
+             //* VIEW G: KALKULATOR DAMPAK ESG & SERTIFIKAT KARBON
+             ================================================= -->
+        <div id="tab-esg" class="app-tab hidden space-y-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-auGreen">Circular Economy Impact · B2B &amp; B2C</span>
+              <h2 class="text-2xl font-black text-auDark mt-0.5">Kalkulator Dampak Lingkungan &amp; Estimasi Nilai</h2>
+            </div>
+            <button onclick="openESGCertificateModal()" class="px-5 py-2.5 rounded-full bg-auDark text-auLime font-extrabold text-xs hover:opacity-95 transition shadow-lg">
+              🏆 Terbitkan Sertifikat Kontribusi
+            </button>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-5 theme-card p-6 rounded-3xl border border-auBorder space-y-5">
+              <div>
+                <label class="block text-xs font-bold mb-2">Pilih Jenis Limbah Plastik</label>
+                <select id="esg-material-select" onchange="updateESGCalculator()" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200">
+                  <option value="PP">PP (Polypropylene) — Rp 8.100/kg</option>
+                  <option value="PET">PET Botol Bersih — Rp 9.200/kg</option>
+                  <option value="HDPE">HDPE Regrind — Rp 7.400/kg</option>
+                  <option value="LDPE">LDPE Film — Rp 5.600/kg</option>
+                  <option value="ABS">ABS Elektronik — Rp 11.400/kg</option>
+                </select>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-2">
+                  <span>Volume Material (Skala Individu s/d Pabrik)</span>
+                  <span id="esg-weight-label" class="text-auGreen font-extrabold">500 KG</span>
+                </div>
+                <input id="esg-weight-slider" type="range" min="10" max="10000" step="10" value="500" oninput="updateESGCalculator()" class="w-full esg-slider" />
+                <div class="flex justify-between text-[11px] text-gray-400 mt-1">
+                  <span>10 KG (B2C)</span>
+                  <span>2.500 KG</span>
+                  <span>10.000 KG (B2B)</span>
+                </div>
+              </div>
+
+              <p class="text-xs text-gray-500 leading-relaxed bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200/70">
+                Baik setoran plastik terpilah rumah tangga maupun limbah produksi pabrik sama-sama berkontribusi mengurangi emisi karbon dari produksi plastik baru.
+              </p>
+            </div>
+
+            <div class="lg:col-span-7 grid sm:grid-cols-2 gap-4">
+              <div class="bg-auDark text-white p-6 rounded-3xl flex flex-col justify-between">
+                <p class="text-xs text-emerald-200">Potensi Nilai Ekonomi</p>
+                <p id="esg-res-income" class="text-3xl font-black text-auLime my-3">Rp 4.050.000</p>
+                <p class="text-[11px] text-emerald-200/75">Berdasarkan indeks harga wajar AI hari ini</p>
+              </div>
+              <div class="theme-card p-6 rounded-3xl border border-auBorder flex flex-col justify-between">
+                <p class="text-xs text-gray-500">Emisi Karbon Dicegah</p>
+                <p id="esg-res-co2" class="text-3xl font-black text-auGreen my-3">925 kg CO₂e</p>
+                <p class="text-[11px] text-gray-500">Tercatat pada sertifikat keberlanjutan</p>
+              </div>
+              <div class="theme-card p-6 rounded-3xl border border-auBorder flex flex-col justify-between">
+                <p class="text-xs text-gray-500">Setara Penanaman Pohon</p>
+                <p id="esg-res-trees" class="text-3xl font-black text-auDark my-3">44 Pohon</p>
+                <p class="text-[11px] text-gray-500">Daya serap pohon dewasa per tahun</p>
+              </div>
+              <div class="theme-card p-6 rounded-3xl border border-auBorder flex flex-col justify-between">
+                <p class="text-xs text-gray-500">Penghematan Energi</p>
+                <p id="esg-res-energy" class="text-3xl font-black text-auDark my-3">2.850 kWh</p>
+                <p class="text-[11px] text-gray-500">Energi listrik terselamatkan dari daur ulang</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </section>
+
+  <!-- =========================================================
+       //* MODAL 1: DETAIL PRODUK + TRANSPARANSI FEE & PILIH LOGISTIK
+       ========================================================= -->
+  <div id="modal-product-detail" class="au-modal-backdrop" onclick="if(event.target===this) closeProductDetailModal()">
+    <div class="theme-card rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-auBorder max-h-[92vh] overflow-y-auto">
+      <div class="relative h-48 bg-auDark">
+        <img id="modal-prod-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Detail Produk" class="w-full h-full object-cover" />
+        <button onclick="closeProductDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 text-white font-bold hover:bg-black transition">✕</button>
+        <span id="modal-prod-badge" class="absolute bottom-4 left-4 bg-auLime text-auDark text-xs font-extrabold px-3 py-1 rounded-full shadow">AI Verified</span>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <p id="modal-prod-zone" class="text-xs font-semibold text-auGreen">📍 Surabaya</p>
+          <h3 id="modal-prod-title" class="text-2xl font-black text-auDark mt-0.5">Limbah PP Plastic</h3>
+          <p id="modal-prod-desc" class="text-xs text-gray-600 mt-1.5 leading-relaxed"></p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-auBg p-3 rounded-2xl text-center">
+          <div>
+            <p class="text-[10px] text-gray-500">Berat Lot</p>
+            <p id="modal-prod-weight" class="font-extrabold text-sm text-auDark">1.000 KG</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-gray-500">Harga AI</p>
+            <p id="modal-prod-price" class="font-extrabold text-sm text-auGreen">Rp 8.100</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-gray-500">Kemurnian</p>
+            <p id="modal-prod-purity" class="font-extrabold text-sm text-auDark">97.4%</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-gray-500">Hemat CO₂</p>
+            <p id="modal-prod-co2" class="font-extrabold text-sm text-emerald-600">1.850 kg</p>
+          </div>
+        </div>
+
+        <!-- //* Jumlah Beli + Media Pengiriman Lalamove / Deliveree / Mandiri -->
+        <div class="p-4 rounded-2xl border border-auBorder bg-emerald-50/40 space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <label class="text-xs font-extrabold text-auDark">⚖ Jumlah Pembelian (KG)</label>
+            <input type="number" id="modal-buy-qty" min="1" value="100" oninput="updateModalCostBreakdown()" class="w-32 px-3 py-1.5 text-xs font-extrabold text-right rounded-xl border border-gray-200 bg-white" />
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-auDark mb-1.5">🚚 Pilih Media Pengiriman (Lalamove / Deliveree / Mandiri)</label>
+            <div class="grid grid-cols-3 gap-2 mb-2">
+              <button type="button" id="modal-provider-Lalamove" onclick="selectBuyLogisticsProvider('Lalamove')" class="px-3 py-2 rounded-xl text-xs font-extrabold border provider-pill-lalamove transition">🟠 Lalamove</button>
+              <button type="button" id="modal-provider-Deliveree" onclick="selectBuyLogisticsProvider('Deliveree')" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">🟢 Deliveree</button>
+              <button type="button" id="modal-provider-Mandiri" onclick="selectBuyLogisticsProvider('Mandiri')" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition">🏠 Mandiri</button>
+            </div>
+            <select id="modal-logistics-select" onchange="updateModalCostBreakdown()" class="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-white"></select>
+            <p id="modal-logistics-meta" class="text-[11px] font-semibold text-auGreen mt-1"></p>
+          </div>
+          <div class="space-y-1 text-xs border-t border-emerald-200/70 pt-2.5">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Subtotal Material</span>
+              <span id="modal-fee-subtotal" class="font-bold text-auDark">Rp 8.100.000</span>
+            </div>
+            <div class="flex justify-between">
+              <span id="modal-fee-trx-label" class="text-gray-600">Transaction Fee</span>
+              <span id="modal-fee-trx" class="font-bold text-auGreen">Rp 121.500</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Biaya Pengiriman</span>
+              <span id="modal-fee-logistics" class="font-bold text-auDark">Rp 115.000</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div>
+            <p class="text-[11px] text-gray-500">Total Pembayaran (Transparan)</p>
+            <p id="modal-prod-total" class="text-xl font-black text-auGreen">Rp 8.336.500</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="closeProductDetailModal(); openAppTab('matching');" class="px-4 py-2.5 rounded-full border border-auGreen text-auGreen font-bold text-xs hover:bg-emerald-50 transition">
+              Cari Mitra Match
+            </button>
+            <button onclick="createQuickOrderFromModal()" class="px-6 py-2.5 rounded-full bg-auGreen text-white font-extrabold text-xs hover:bg-auDark transition shadow">
+              🛒 Beli &amp; Munculkan Struk
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* MODAL 2: LIVE CHAT NEGOSIASI HARGA (B2B & B2C)
+       ========================================================= -->
+  <div id="modal-chat-nego" class="au-modal-backdrop" onclick="if(event.target===this) closeNegotiationChat()">
+    <div class="theme-card rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-auBorder flex flex-col">
+      <div class="bg-auDark text-white px-5 py-4 flex items-center justify-between">
+        <div>
+          <h4 id="chat-buyer-name" class="font-extrabold text-sm">Mitra Pembeli</h4>
+          <p id="chat-buyer-meta" class="text-[11px] text-auLime">Online · Terverifikasi AuWaste</p>
+        </div>
+        <button onclick="closeNegotiationChat()" class="w-8 h-8 rounded-full bg-white/15 text-white text-xs font-bold hover:bg-white/25">✕</button>
+      </div>
+
+      <div id="chat-messages-box" class="p-4 h-64 overflow-y-auto space-y-3 bg-auBg"></div>
+
+      <form onsubmit="sendNegotiationMessage(event)" class="p-3 border-t border-gray-100 flex gap-2">
+        <input id="chat-input-field" type="text" placeholder="Ketik penawaran (misal: Bisa Rp 8250/kg?)" class="flex-1 px-3.5 py-2 text-xs rounded-full border border-gray-200 focus:outline-none focus:border-auGreen" />
+        <button type="submit" class="px-4 py-2 rounded-full bg-auGreen text-white font-bold text-xs">Kirim</button>
+      </form>
+      <div class="px-3 pb-3">
+        <button onclick="finalizeDealFromChat()" class="w-full py-2.5 rounded-full bg-auLime text-auDark font-extrabold text-xs hover:opacity-95 transition">
+          ✓ Sepakati Hasil Nego &amp; Buat Transaksi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* MODAL 3: SERTIFIKAT KONTRIBUSI EKONOMI SIRKULAR
+       ========================================================= -->
+  <div id="modal-esg-cert" class="au-modal-backdrop" onclick="if(event.target===this) closeESGCertificateModal()">
+    <div class="bg-auDark text-white rounded-3xl max-w-lg w-full p-8 text-center border-2 border-auLime shadow-2xl space-y-4 relative">
+      <button onclick="closeESGCertificateModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/15 text-white text-xs font-bold">✕</button>
+      <div class="au-logo-pill px-5 py-2.5 rounded-2xl inline-flex items-center justify-center mx-auto">
+        <img src="assets/logo-auwaste.png" alt="AuWaste" class="h-9 w-auto object-contain" />
+      </div>
+      <p class="text-[11px] font-bold tracking-widest uppercase text-auLime">Sertifikat Kontribusi Ekonomi Sirkular</p>
+      <h3 class="text-2xl font-black">AuWaste Verified Impact</h3>
+      <p class="text-xs text-emerald-100">Diberikan secara resmi kepada:</p>
+      <p id="cert-company-name" class="text-xl font-extrabold text-auLime border-y border-white/15 py-2">PT Polimer Jaya Surabaya</p>
+      <p class="text-xs text-emerald-100">
+        Atas kontribusi penyaluran <strong id="cert-material-summary" class="text-white">500 KG PP</strong> yang berhasil mencegah emisi sebesar:
+      </p>
+      <p id="cert-co2-total" class="text-3xl font-black text-white">925 kg CO₂e</p>
+      <p class="text-[11px] text-emerald-200/75">Diterbitkan pada <span id="cert-date"></span> · Open B2B &amp; B2C Network</p>
+      <button onclick="window.print()" class="mt-2 px-6 py-2.5 rounded-full bg-auLime text-auDark font-extrabold text-xs hover:opacity-95 transition">
+        🖨 Cetak / Simpan PDF Sertifikat
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* MODAL 4: BUKTI SERAH TERIMA DIGITAL (KEAMANAN & KEPERCAYAAN)
+       ========================================================= -->
+  <div id="modal-handover-receipt" class="au-modal-backdrop" onclick="if(event.target===this) closeHandoverReceiptModal()">
+    <div class="theme-card rounded-3xl max-w-md w-full p-6 shadow-2xl border border-auBorder space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase text-auGreen">Dokumen Digital Terverifikasi</span>
+          <h3 class="text-lg font-black text-auDark">Bukti Serah Terima Material</h3>
+        </div>
+        <button onclick="closeHandoverReceiptModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">✕</button>
+      </div>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between"><span class="text-gray-500">Kode Transaksi</span><strong id="receipt-code" class="text-auDark">TRX-0034</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Pihak Bertransaksi</span><strong id="receipt-parties" class="text-auDark text-right">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Material</span><strong id="receipt-material" class="text-auDark">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Pengiriman</span><strong id="receipt-logistics" class="text-auDark text-right">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Nilai Material</span><strong id="receipt-amount" class="text-auGreen">-</strong></div>
+        <div class="bg-auBg p-2.5 rounded-xl text-[11px] text-gray-600" id="receipt-fees">-</div>
+        <div class="flex justify-between pt-1"><span class="text-gray-500">Status Saat Ini</span><span id="receipt-status" class="px-2.5 py-0.5 rounded-full bg-auLime text-auDark font-extrabold">Pickup</span></div>
+      </div>
+      <button onclick="window.print()" class="w-full py-2.5 rounded-full bg-auGreen text-white font-bold text-xs hover:bg-auDark transition">
+        🖨 Cetak Bukti Serah Terima
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* MODAL 5: MEKANISME PELAPORAN KENDALA TRANSAKSI
+       ========================================================= -->
+  <div id="modal-report-issue" class="au-modal-backdrop" onclick="if(event.target===this) closeReportIssueModal()">
+    <div class="theme-card rounded-3xl max-w-md w-full p-6 shadow-2xl border border-auBorder space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-black text-auDark">⚠ Laporkan Kendala Transaksi</h3>
+        <button onclick="closeReportIssueModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">✕</button>
+      </div>
+      <form onsubmit="submitReportIssue(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Jenis Kendala</label>
+          <select id="report-reason" class="w-full px-3 py-2 text-xs rounded-xl border border-gray-200">
+            <option>Berat / kualitas material tidak sesuai deskripsi</option>
+            <option>Keterlambatan penjemputan / pengiriman</option>
+            <option>Kendala pembayaran atau rincian biaya</option>
+            <option>Lainnya (butuh bantuan admin)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Detail Keterangan</label>
+          <textarea rows="3" required placeholder="Jelaskan kendala yang Anda alami agar tim AuWaste segera membantu..." class="w-full px-3 py-2 text-xs rounded-xl border border-gray-200"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs transition">
+          Kirim Laporan ke Pusat Bantuan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* MODAL 6: STRUK PEMBELIAN & KARCIS/NOTA PENJUALAN + UCAPAN TERIMA KASIH
+       ========================================================= -->
+  <div id="modal-receipt-ticket" class="au-modal-backdrop" onclick="if(event.target===this) closeReceiptTicketModal()">
+    <div class="au-ticket-card theme-card rounded-3xl max-w-md w-full p-6 shadow-2xl border border-auBorder space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span id="ticket-badge" class="inline-block px-2.5 py-1 rounded-full bg-auLime text-auDark text-[10px] font-extrabold">✅ STRUK RESMI</span>
+          <h3 id="ticket-heading" class="text-xl font-black text-auDark mt-1">Struk Pembelian Material</h3>
+        </div>
+        <button onclick="closeReceiptTicketModal()" class="no-print w-8 h-8 rounded-full bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200 transition">✕</button>
+      </div>
+
+      <div class="bg-auBg rounded-2xl p-3.5 text-xs space-y-1.5">
+        <div class="flex justify-between"><span class="text-gray-500">Nomor Struk / Karcis</span><strong id="ticket-code" class="text-auDark">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Waktu Transaksi</span><strong id="ticket-date" class="text-auDark">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Penjual (Supplier)</span><strong id="ticket-seller" class="text-auDark text-right">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Pembeli (Buyer)</span><strong id="ticket-buyer" class="text-auDark text-right">-</strong></div>
+      </div>
+
+      <div class="ticket-divider pt-3 space-y-1.5 text-xs">
+        <p class="font-extrabold text-auDark" id="ticket-material">-</p>
+        <p class="text-gray-500" id="ticket-qty-price">-</p>
+        <div class="flex items-center justify-between pt-1">
+          <span class="text-gray-500">Media Pengiriman</span>
+          <span id="ticket-provider-badge"></span>
+        </div>
+        <div class="flex justify-between gap-2"><span class="text-gray-500 shrink-0">Armada &amp; Driver</span><strong id="ticket-vehicle" class="text-auDark text-right">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">No. Resi</span><strong id="ticket-resi" class="text-auGreen font-mono">-</strong></div>
+      </div>
+
+      <div class="ticket-divider pt-3 space-y-1.5 text-xs">
+        <div class="flex justify-between"><span id="ticket-subtotal-label" class="text-gray-600">Subtotal</span><strong id="ticket-subtotal" class="text-auDark">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-600">Transaction Fee</span><strong id="ticket-fee" class="text-auDark">-</strong></div>
+        <div class="flex justify-between"><span class="text-gray-600">Biaya Pengiriman</span><strong id="ticket-ongkir" class="text-auDark">-</strong></div>
+        <div class="flex justify-between pt-2 border-t border-gray-200 text-sm font-black">
+          <span id="ticket-grand-label" class="text-auDark">TOTAL</span>
+          <span id="ticket-grand-total" class="text-auGreen">Rp 0</span>
+        </div>
+      </div>
+
+      <!-- //* Banner Ucapan Terima Kasih -->
+      <div class="thank-you-banner rounded-2xl p-4 text-center space-y-1">
+        <p id="ticket-thankyou-title" class="font-extrabold text-sm text-auLime">🙏 Terima Kasih!</p>
+        <p id="ticket-thankyou-msg" class="text-[11px] text-emerald-100 leading-relaxed"></p>
+      </div>
+
+      <div class="no-print grid grid-cols-2 gap-2 pt-1">
+        <button onclick="window.print()" class="py-2.5 rounded-full bg-auGreen text-white font-extrabold text-xs hover:bg-auDark transition">
+          🖨 Cetak Struk / Nota
+        </button>
+        <button onclick="closeReceiptTicketModal(); openAppTab('laporan');" class="py-2.5 rounded-full bg-auLime text-auDark font-extrabold text-xs hover:opacity-90 transition">
+          📑 Buka Laporan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       //* FUNGSI: Memuat 14 file JavaScript modular secara berurutan
+       ========================================================= -->
+  <script src="js/01-data.js"></script>
+  <script src="js/02-state.js"></script>
+  <script src="js/03-toast.js"></script>
+  <script src="js/04-loader.js"></script>
+  <script src="js/05-navigation.js"></script>
+  <script src="js/06-auth.js"></script>
+  <script src="js/07-dashboard.js"></script>
+  <script src="js/08-marketplace.js"></script>
+  <script src="js/09-ai-scanner.js"></script>
+  <script src="js/10-matching-chat.js"></script>
+  <script src="js/11-transactions.js"></script>
+  <script src="js/12-esg-calculator.js"></script>
+  <script src="js/14-laporan.js"></script>
+  <script src="js/13-main.js"></script>
+</body>
+</html>

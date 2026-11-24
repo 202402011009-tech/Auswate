@@ -1,0 +1,203 @@
+/* =========================================================
+   //* FILE: css/08-components.css
+   //* FUNGSI: Mengatur komponen interaktif global seperti:
+   //*         1) Efek Laser Scan AI pada preview foto limbah
+   //*         2) Modal Detail Produk & Modal Chat Nego B2B
+   //*         3) Sistem Notifikasi Toast melayang di pojok layar
+   ========================================================= */
+
+/* //* Animasi garis laser hijau AI Scanner saat foto diunggah */
+.ai-scan-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.ai-scan-laser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #b8e94b, #ffffff, #b8e94b, transparent);
+  box-shadow: 0 0 18px 4px rgba(184, 233, 75, 0.85);
+  top: 0;
+  display: none;
+  z-index: 15;
+}
+
+.ai-scan-frame.scanning .ai-scan-laser {
+  display: block;
+  animation: scanLaserMove 1.4s ease-in-out infinite;
+}
+
+@keyframes scanLaserMove {
+  0% { top: 4%; }
+  50% { top: 94%; }
+  100% { top: 4%; }
+}
+
+/* //* Backdrop & Animasi pop-up Modal (Detail Produk, Chat, Sertifikat) */
+.au-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(5, 22, 14, 0.72);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.au-modal-backdrop.open {
+  display: flex;
+  animation: auFadeIn 0.22s ease;
+}
+
+/* //* Wadah Notifikasi Toast modern di kanan bawah */
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-width: 360px;
+}
+
+.au-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 1rem;
+  background: #0c3b24;
+  color: #ffffff;
+  border-left: 4px solid #b8e94b;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.82rem;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(32px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* //* Gelembung Chat Negosiasi B2B */
+.chat-bubble-buyer {
+  background: #edf6ef;
+  color: #0c3b24;
+  border-radius: 1rem 1rem 1rem 0.25rem;
+}
+
+body.dark-mode .chat-bubble-buyer {
+  background: #17382b;
+  color: #ecfdf5;
+}
+
+.chat-bubble-user {
+  background: #166f44;
+  color: #ffffff;
+  border-radius: 1rem 1rem 0.25rem 1rem;
+}
+
+/* //* Sorotan khusus untuk kartu produk berstatus Featured Listing */
+.featured-listing-card {
+  border: 2px solid #b8e94b !important;
+  box-shadow: 0 12px 32px -10px rgba(22, 111, 68, 0.25);
+  position: relative;
+}
+
+.featured-ribbon {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #1c1917;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+/* //* Lencana Best Seller (Produk Paling Banyak Terbeli / Terjual) */
+.bestseller-badge {
+  background: linear-gradient(135deg, #dc2626, #f97316);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+/* //* Gaya Kartu & Pill Provider Pengiriman Lalamove & Deliveree */
+.provider-pill-lalamove {
+  background: linear-gradient(135deg, #f26722, #ff8533);
+  color: #ffffff;
+  border-color: #f26722;
+}
+
+.provider-pill-deliveree {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+  border-color: #059669;
+}
+
+.provider-pill-self {
+  background: linear-gradient(135deg, #0c3b24, #166f44);
+  color: #b8e94b;
+  border-color: #166f44;
+}
+
+.badge-lalamove {
+  background: #fff3eb;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.badge-deliveree {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #6ee7b7;
+}
+
+.badge-mandiri {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+/* //* Desain Karcis / Struk / Nota Digital dengan Garis Sobekan */
+.au-ticket-card {
+  position: relative;
+}
+
+.ticket-divider {
+  border-top: 2px dashed var(--au-border);
+  position: relative;
+}
+
+.thank-you-banner {
+  background: linear-gradient(135deg, #0c3b24 0%, #166f44 100%);
+  color: #ffffff;
+  border: 1px solid rgba(184, 233, 75, 0.45);
+}
+
+/* //* Mode Cetak Struk / Karcis / Nota */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #modal-receipt-ticket.open,
+  #modal-receipt-ticket.open *,
+  #modal-esg-cert.open,
+  #modal-esg-cert.open *,
+  #modal-handover-receipt.open,
+  #modal-handover-receipt.open * {
+    visibility: visible;
+  }
+  #modal-receipt-ticket.open {
+    position: fixed;
+    inset: 0;
+    background: #ffffff !important;
+    padding: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
